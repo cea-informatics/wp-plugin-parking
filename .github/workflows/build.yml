@@ -1,0 +1,142 @@
+name: Build WordPress Plugin Release
+
+on:
+    push:
+        branches: [main]
+
+env:
+    PLUGIN_FILE: plugin.php
+
+jobs:
+    get-version:
+        name: Get Plugin Version
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.version.outputs.version }}
+            needed: ${{ steps.version.outputs.needed }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Extract version from PHP header
+              id: version
+              run: |
+                  version=$(grep -iE "^[[:space:]]*\*?[[:space:]]*Version:" "$PLUGIN_FILE" | sed -E 's/.*Version:[[:space:]]*([^ ]+).*/\1/')
+                  if [ -z "$version" ]; then
+                    exit 1
+                  fi
+                  echo "version=$version" >> $GITHUB_OUTPUT
+
+                  if gh release view "v$version" &>/dev/null; then
+                    echo "needed=false" >> $GITHUB_OUTPUT
+                  else
+                    echo "needed=true" >> $GITHUB_OUTPUT
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    zip-plugin:
+        name: Zip Plugin
+        needs: get-version
+        if: needs.get-version.outputs.needed == 'true'
+        runs-on: ubuntu-latest
+        outputs:
+            zip_path: ${{ steps.zip.outputs.zip_path }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Create ZIP archive
+              id: zip
+              run: |
+                  zip_name="wp-plugin-wheel.zip"
+                  zip -r "$zip_name" . -x ".git/*" ".github/*" "*.zip"
+                  echo "zip_path=$zip_name" >> $GITHUB_OUTPUT
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: plugin-zip
+                  path: ${{ steps.zip.outputs.zip_path }}
+
+    create-release:
+        name: Create GitHub Release
+        needs: [get-version, zip-plugin]
+        if: needs.get-version.outputs.needed == 'true'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Generate Notes
+              run: |
+                  version="${{ needs.get-version.outputs.version }}"
+                  asset=${{ needs.zip-plugin.outputs.zip_path }}
+
+                  last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+                  log_range="${last_tag:+${last_tag}..}HEAD"
+
+                  section() {
+                    local title="$1" pattern="$2"
+                    local repo="${GITHUB_REPOSITORY}"
+                    if git log $log_range --oneline | grep -qiE "$pattern"; then
+                        printf "### %s\n" "$title"
+                        git log $log_range --oneline | grep -iE "$pattern" | while read -r line; do
+                        hash=$(echo "$line" | awk '{print $1}')
+                        msg=$(echo "$line" | cut -d' ' -f2-)
+                        echo "- [\`${hash}\`](https://github.com/$repo/commit/$hash) $msg"
+                        done
+                        printf "\n"
+                    fi
+                  }
+
+                  {
+                    if [ -z "$last_tag" ]; then
+                      commits_count=$(git rev-list HEAD --count)
+                      authors=$(git log --pretty=format:"%an" | sort -u | sed 's/.*$/`&`/' | paste -sd ', ' -)
+                      printf "Initial release v%s with %s commits by %s.\n\n" "$version" "$commits_count" "$authors"
+                    else
+                      commits_count=$(git rev-list ${last_tag}..HEAD --count)
+                      authors=$(git log ${last_tag}..HEAD --pretty=format:"%an" | sort -u | sed 's/.*$/`&`/' | paste -sd ', ' -)
+                      printf "Release v%s includes %s commits since %s by %s.\n\n" "$version" "$commits_count" "$last_tag" "$authors"
+                    fi
+
+                    # Sections
+                    section "✨ Features" "feat|feature|add"
+                    section "🐛 Bug Fixes" "fix|bugfix"
+                    section "🔧 Maintenance" "version|refactor|chore|style|perf|update|improve"
+                    section "📚 Documentation" "docs|doc|documentation"
+
+                    # Other changes
+                    other=$(git log $log_range --oneline | grep -viE "add|feat|feature|fix|bugfix|hotfix|version|refactor|chore|style|perf|update|improve|docs|doc|documentation" || true)
+                    if [ -n "$other" ]; then
+                      printf "### 🔄 Other Changes\n"
+                      echo "$other" | sed 's/^/- /'
+                      printf "\n"
+                    fi
+                  } > notes.md
+
+            - name: Download plugin ZIP
+              uses: actions/download-artifact@v4
+              with:
+                  name: plugin-zip
+                  path: .
+
+            - name: Create or Update Release
+              run: |
+                  version="${{ needs.get-version.outputs.version }}"
+                  asset="${{ needs.zip-plugin.outputs.zip_path }}"
+
+                  if gh release view "v$version" &>/dev/null; then
+                      echo "Release v$version exists → uploading asset"
+                      gh release upload "v$version" "$asset" --clobber
+                  else
+                      echo "Creating release v$version"
+                      gh release create "v$version" \
+                      --title "v$version" \
+                      --notes-file notes.md \
+                      "$asset" \
+                      --latest
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
