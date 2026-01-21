@@ -3,7 +3,7 @@
 /**
  * Plugin Name:     wp-plugin-parking
  * Description:     WordPress plugin to display information about parking.
- * Version:         1.0.1
+ * Version:         1.0.2
  * Author:          CEA Informatics
  * License:         GPL-2.0-or-later
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
