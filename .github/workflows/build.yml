@@ -48,7 +48,9 @@ jobs:
               id: zip
               run: |
                   zip_name="wp-plugin-parking.zip"
-                  zip -r "$zip_name" . -x ".git/*" ".github/*" "*.zip"
+                  mkdir -p build/wp-plugin-parking
+                  cp -r assets build/wp-plugin-parking/ && cp -r plugin.php build/wp-plugin-parking/
+                  zip -r "$zip_name" build/wp-plugin-parking
                   echo "zip_path=$zip_name" >> $GITHUB_OUTPUT
             - name: Upload artifact
               uses: actions/upload-artifact@v4
