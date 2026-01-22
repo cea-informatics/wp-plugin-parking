@@ -15,7 +15,7 @@ jobs:
             version: ${{ steps.version.outputs.version }}
             needed: ${{ steps.version.outputs.needed }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Extract version from PHP header
               id: version
@@ -42,7 +42,7 @@ jobs:
         outputs:
             zip_path: ${{ steps.zip.outputs.zip_path }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Create ZIP archive
               id: zip
@@ -66,7 +66,7 @@ jobs:
         permissions:
             contents: write
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0
 
