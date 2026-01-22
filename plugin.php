@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Plugin Name:     wp-plugin-parking
+ * Plugin Name:     Custom Parking
  * Description:     WordPress plugin to display information about parking.
- * Version:         1.0.2
+ * Version:         1.0.3
  * Author:          CEA Informatics
  * License:         GPL-2.0-or-later
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
