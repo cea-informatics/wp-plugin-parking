@@ -3,7 +3,7 @@
 /**
  * Plugin Name:     Custom Parking
  * Description:     The plugin displays information about parking availability.
- * Version:         1.0.4
+ * Version:         1.1.0
  * Author:          CEA Informatics
  * License:         GPL-2.0-or-later
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
