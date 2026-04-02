@@ -3,7 +3,7 @@
 /**
  * Plugin Name:     Custom Parking
  * Description:     The plugin displays information about parking availability.
- * Version:         1.1.0
+ * Version:         1.1.1
  * Author:          CEA Informatics
  * License:         GPL-2.0-or-later
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
@@ -29,18 +29,14 @@ function wpw_get_parking_spots() {
 }
 
 /**
- * Injecte le badge parking en haut à droite du site.
+ * Injecte le badge parking dans le <header> du site via JS.
  */
 function wpw_render_parking_header() {
     $spots = wpw_get_parking_spots();
     $color = $spots <= 5 ? '#e74c3c' : ($spots <= 15 ? '#f39c12' : '#27ae60');
     ?>
     <div id="wpw-parking-badge" style="
-        position: fixed;
-        top: 12px;
-        right: 16px;
-        z-index: 99999;
-        display: flex;
+        display: none;
         align-items: center;
         gap: 6px;
         background: #fff;
@@ -55,6 +51,7 @@ function wpw_render_parking_header() {
         line-height: 1;
         cursor: default;
         user-select: none;
+        margin-left: auto;
     " title="Places de parking disponibles">
         <span style="
             display: inline-flex;
@@ -73,6 +70,16 @@ function wpw_render_parking_header() {
             <?php echo esc_html($spots); ?>
         </span>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var badge = document.getElementById('wpw-parking-badge');
+        var search = document.querySelector('[data-device="desktop"] .ct-header-search');
+        if (search && badge) {
+            search.insertAdjacentElement('beforebegin', badge);
+            badge.style.display = 'flex';
+        }
+    });
+    </script>
     <?php
 }
 add_action('wp_footer', 'wpw_render_parking_header');
