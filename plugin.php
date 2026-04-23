@@ -38,13 +38,13 @@ function wpw_render_parking_header() {
     <div id="wpw-parking-badge" style="
         display: none;
         align-items: center;
-        gap: 10px;
+        gap: 6px;
         font-family: sans-serif;
         cursor: default;
         user-select: none;
         margin-left: auto;
     " title="Places de parking disponibles">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <g clip-path="url(#wpw-clip)">
                 <path d="M18.4533 3.56853C18.1889 3.56853 18.012 3.59405 17.9194 3.61957V5.30647C18.0288 5.33145 18.1647 5.34078 18.3512 5.34078C19.037 5.34078 19.4615 4.99291 19.4615 4.4084C19.4615 3.88209 19.0965 3.56853 18.4533 3.56853Z" fill="<?php echo esc_attr($color); ?>"/>
                 <path d="M20.2152 5.72997C19.7746 6.14487 19.1219 6.33176 18.3589 6.33176C18.1893 6.33176 18.0372 6.32386 17.9198 6.30736V8.34964H16.6392V2.71237C17.0371 2.6448 17.5967 2.59434 18.3846 2.59434C19.1813 2.59434 19.7497 2.74707 20.1315 3.05199C20.4965 3.33983 20.7417 3.81475 20.7417 4.37444C20.741 4.93325 20.5537 5.40797 20.2152 5.72997ZM22.8198 0.27243H14.3056C13.6535 0.27243 13.1255 0.771207 13.1255 1.38674V9.42553C13.1255 10.0411 13.6535 10.54 14.3056 10.54H22.8198C23.4704 10.54 23.9998 10.0411 23.9998 9.42553V1.38674C23.9998 0.771207 23.4704 0.27243 22.8198 0.27243Z" fill="<?php echo esc_attr($color); ?>"/>
