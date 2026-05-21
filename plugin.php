@@ -3,7 +3,7 @@
 /**
  * Plugin Name:     Custom Parking
  * Description:     The plugin displays information about parking availability.
- * Version:         1.2.5
+ * Version:         1.2.6
  * Author:          CEA Informatics
  * License:         GPL-2.0-or-later
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
@@ -52,7 +52,7 @@ function wpw_render_parking_header() {
     </div>
     <div id="wpw-parking-user" style="display: none; align-items: center;">
         <?php if (is_user_logged_in()) : ?>
-            <?php echo file_get_contents(plugin_dir_path(__FILE__) . 'assets/parking-icon.svg'); ?>
+            <a href="/account" style="display: flex; align-items: center;"><?php echo file_get_contents(plugin_dir_path(__FILE__) . 'assets/parking-icon.svg'); ?></a>
         <?php else : ?>
             <a href="/login" style="font-family: sans-serif; font-size: 15px; font-weight: 600; text-decoration: none;">Login</a>
         <?php endif; ?>
