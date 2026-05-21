@@ -50,33 +50,29 @@ function wpw_render_parking_header() {
             <?php echo esc_html($spots); ?>
         </span>
     </div>
+    <div id="wpw-parking-user" style="display: none; align-items: center;">
+        <?php if (is_user_logged_in()) : ?>
+            <?php echo file_get_contents(plugin_dir_path(__FILE__) . 'assets/parking-icon.svg'); ?>
+        <?php else : ?>
+            <a href="/login" style="font-family: sans-serif; font-size: 15px; font-weight: 600; text-decoration: none;">Login</a>
+        <?php endif; ?>
+    </div>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         var badge = document.getElementById('wpw-parking-badge');
+        var user  = document.getElementById('wpw-parking-user');
         var search = document.querySelector('[data-device="desktop"] .ct-header-search');
         if (search && badge) {
             search.insertAdjacentElement('beforebegin', badge);
             badge.style.display = 'flex';
+        }
+        if (search && user) {
+            search.insertAdjacentElement('beforebegin', user);
+            user.style.display = 'flex';
         }
     });
     </script>
     <?php
 }
 add_action('wp_footer', 'wpw_render_parking_header');
-
-function wpw_display_parking() {
-    ob_start(); ?>
-     <div id="wp-parking" style="display: flex; align-items: center;">
-        <?php if (is_user_logged_in()) : ?>
-<?php echo file_get_contents(plugin_dir_path(__FILE__) . 'assets/parking-icon.svg'); ?>
-        <?php else : ?>
-        <a href="/login" style="font-family: sans-serif; font-size: 15px; font-weight: 600; text-decoration: none;">Login</a>
-        <?php endif; ?>
-        <button id="wpw-parking-badge">Parking Info</button>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-
-add_shortcode('wp-parking', 'wpw_display_parking');
 
