@@ -3,7 +3,7 @@
 /**
  * Plugin Name:     Custom Parking
  * Description:     The plugin displays information about parking availability.
- * Version:         1.2.7
+ * Version:         1.2.8
  * Author:          CEA Informatics
  * License:         GPL-2.0-or-later
  * License URI:     https://www.gnu.org/licenses/gpl-2.0.html
@@ -34,6 +34,23 @@ function wpw_get_parking_spots() {
 function wpw_render_parking_header() {
     $spots = wpw_get_parking_spots();
     $color = $spots <= 5 ? '#c0392b' : ($spots <= 15 ? '#d4820a' : '#3a7a2e');
+
+    $avatar_url    = '';
+    $user_href     = '/login';
+    $has_um_avatar = false;
+
+    if (is_user_logged_in()) {
+        $user_href = '/account';
+        $user_id   = get_current_user_id();
+        if (function_exists('um_fetch_user')) {
+            um_fetch_user($user_id);
+            $profile_photo = um_profile('profile_photo');
+            if (!empty($profile_photo)) {
+                $has_um_avatar = true;
+                $avatar_url    = get_avatar_url($user_id, ['size' => 28]);
+            }
+        }
+    }
     ?>
     <div id="wpw-parking-badge" style="
         display: none;
@@ -51,11 +68,19 @@ function wpw_render_parking_header() {
         </span>
     </div>
     <div id="wpw-parking-user" style="display: none; align-items: center;">
-        <?php if (is_user_logged_in()) : ?>
-            <a href="/account" style="display: flex; align-items: center;"><?php echo file_get_contents(plugin_dir_path(__FILE__) . 'assets/parking-icon.svg'); ?></a>
-        <?php else : ?>
-            <a href="/login" style="font-family: sans-serif; font-size: 15px; font-weight: 600; text-decoration: none;">Connexion</a>
-        <?php endif; ?>
+        <a href="<?php echo esc_url($user_href); ?>" style="display: flex; align-items: center;">
+            <?php if ($has_um_avatar) : ?>
+                <img src="<?php echo esc_url($avatar_url); ?>" width="28" height="28"
+                     style="border-radius: 50%; object-fit: cover; display: block;"
+                     alt="Mon profil">
+            <?php else : ?>
+                <svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="14" cy="14" r="14" fill="#b5b5b5"/>
+                    <circle cx="14" cy="11" r="5" fill="#e8e8e8"/>
+                    <path d="M4 26 C4 19.5 24 19.5 24 26 Z" fill="#e8e8e8"/>
+                </svg>
+            <?php endif; ?>
+        </a>
     </div>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
